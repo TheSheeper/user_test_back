@@ -5,8 +5,13 @@ import cors from "cors"
 const app = express()
 const port = 3000
 
+const corsOptions = {
+  origin: 'https://front-flax-alpha.vercel.app//',
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions))
 app.use(express.json())
-app.use(cors())
 
 API(app)
 
