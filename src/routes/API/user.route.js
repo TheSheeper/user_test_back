@@ -25,15 +25,16 @@ userAPI.get("/", async (req, res) => {
 userAPI.post("/block", async (req, res) => {
   try {
     const { userid } = req.query;
-    console.log(userid)
+    console.log(userid);
     if (!userid) return res.status(401).json({ message: "Unauthorized" });
     const auth = await Users.findOne({ where: { id: userid } });
     if (!auth || auth.status == 0)
       return res.status(401).json({ message: "User not found" });
-    
+
     const { usersId } = req.body;
 
-    Users.update({ status: false }, { where: { id: usersId } });
+    if (usersId == "all") await Users.update({ status: false }, { where: {}, truncate: true });
+    else Users.update({ status: false }, { where: { id: usersId } });
 
     return res.status(200).json({ message: "Users blocked" });
   } catch (e) {
@@ -52,7 +53,8 @@ userAPI.post("/unblock", async (req, res) => {
 
     const { usersId } = req.body;
 
-    Users.update({ status: true }, { where: { id: usersId } });
+    if (usersId == "all") await Users.update({ status: true }, { where: {}, truncate: true });
+    else Users.update({ status: true }, { where: { id: usersId } });
 
     return res.status(200).json({ message: "Users unblocked" });
   } catch (e) {
@@ -68,10 +70,10 @@ userAPI.post("/delete", async (req, res) => {
     const auth = await Users.findOne({ where: { id: userid } });
     if (!auth || auth.status == 0)
       return res.status(401).json({ message: "User not found" });
-    
-    const { usersId } = req.body;
 
-    await Users.destroy({ where: { id: usersId } });
+    const { usersId } = req.body;
+    if (usersId == "all") await Users.destroy({ where: {}, truncate: true });
+    else await Users.destroy({ where: { id: usersId } });
 
     return res.status(200).json({ message: "Users deleted" });
   } catch (e) {
